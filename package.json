@@ -1,0 +1,11 @@
+{
+    "name": "surplus-ai",
+    "dependencies": {
+      "@deepseek/api": "^1.0.0",  // Use actual DeepSeek package
+      "dotenv": "^16.0.3",
+      "cors": "^2.8.5"
+    },
+    "scripts": {
+      "dev": "vercel dev"
+    }
+  }

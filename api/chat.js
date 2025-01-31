@@ -6,75 +6,53 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
-// Helper function to extract part numbers
-const extractSearchTerms = (message) => {
-    // Match patterns like "a 1234", "a-1234", or "a1234"
-    const partNumberRegex = /([A-Za-z]+[-\s]?\d+)/gi;
-    const matches = message.match(partNumberRegex) || [];
-  
-    return matches.map(term => 
-        term
-            .replace(/[-\s]/g, '')  // Remove hyphens AND spaces
-            .toUpperCase()
-    );
+// Clean part numbers by removing non-alphanumeric characters
+const cleanPartNumber = (input) => {
+  return input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 };
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
   try {
-    console.log('Received message:', req.body.message); // NEW
     const { message } = req.body;
-    
-    // 1. Identify product references
-    const searchTerms = extractSearchTerms(message);
-    console.log('Cleaned search terms:', searchTerms); // NEW
-    
-    // 2. Query Supabase
-    let products = [];
-    if (searchTerms.length > 0) {
-      const queryConditions = searchTerms.flatMap(term => [
-        `part_number.ilike.%${term}%`,
-        `part_number.ilike.%${term.replace(/-/g, '')}%`,
-        `description.ilike.%${term}%`
-      ]);
-      
-      console.log('Supabase query conditions:', queryConditions); // NEW
-      
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .or(
-            searchTerms.flatMap(term => [
-                // Match "a1234", "a-1234", or "a 1234"
-                `part_number.ilike.%${term}%`,
-                `part_number.ilike.%${term.slice(0, 1)}-${term.slice(1)}%`, // Add hyphen
-                `description.ilike.%${term}%`
-                ])
-        );
-      if (error) {
-        console.error('Supabase error:', error); // NEW
-        throw error;
-      }
-      
-      products = data;
-      console.log('Query results:', products); // NEW
-    }
-    // 3. Build AI prompt with inventory data
-    const inventoryContext = products.length > 0
-      ? `Current Inventory:\n${products.map(p => 
-          `- ${p.part_number}: ${p.brand} ${p.description} (Qty: ${p.quantity}, Price: $${p.price})`
-        ).join('\n')}`
-      : 'No matching products found in inventory.';
+    console.log('Received message:', message);
 
+    // 1. Clean user input
+    const cleanedInput = cleanPartNumber(message);
+    console.log('Cleaned input:', cleanedInput);
+
+    // 2. Search Supabase with similarity scoring
+    const { data: products, error } = await supabase.rpc('search_products', {
+      search_term: cleanedInput,
+      similarity_threshold: 0.3 // Adjust threshold as needed
+    });
+
+    if (error) throw error;
+    console.log('Found products:', products);
+
+    // 3. Format results for AI
+    const inventoryContext = products.length > 0
+      ? `Top ${products.length} matching products:\n${
+          products.map(p => 
+            `- ${p.part_number} (${Math.round(p.similarity * 100)}% match): ` +
+            `${p.brand} ${p.description}, Qty: ${p.quantity}, Price: $${p.price}`
+          ).join('\n')
+        }`
+      : 'No similar products found in inventory.';
+
+    // 4. Build AI prompt
     const aiPrompt = [
-      "You're an industrial surplus assistant. Use this inventory data:",
+      "You're an industrial surplus assistant. Respond to the user's question ",
+      "using these potential matches from our inventory. If similarity is low,",
+      "mention possible alternatives. Be specific with numbers when available.",
+      "Inventory Data:",
       inventoryContext,
-      `User Question: "${message}"`,
-      "Provide a helpful response with exact numbers from inventory when available."
+      "\nUser Question:",
+      `"${message}"`
     ].join('\n');
 
-    // 4. Get AI response
+    // 5. Get AI response
     const aiResponse = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {
@@ -89,13 +67,16 @@ module.exports = async (req, res) => {
       }
     );
 
-    res.json({ 
+    res.json({
       response: aiResponse.data.choices[0].message.content,
-      products // Optional: Send product data to frontend
+      products: products.slice(0, 3) // Return top 3 matches
     });
 
   } catch (error) {
-    console.error('Full error stack:', error); // NEW
-    res.status(500).json({ error: "Service unavailable" });
+    console.error('Error:', error);
+    res.status(500).json({ 
+      error: "Service unavailable",
+      details: error.message 
+    });
   }
 };

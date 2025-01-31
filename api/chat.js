@@ -1,5 +1,7 @@
 const cors = require('cors')();
 const axios = require('axios');
+res.setHeader('Access-Control-Allow-Origin', '*');
+res.setHeader('Access-Control-Allow-Methods', 'POST');
 
 module.exports = async (req, res) => {
   cors(req, res, async () => {

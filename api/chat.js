@@ -8,9 +8,9 @@ const supabase = createClient(
 
 // Helper function to extract part numbers
 const extractSearchTerms = (message) => {
-  const partNumberRegex = /([A-Za-z]{2,}-\d+)|(\b[A-Za-z]+\s?\d+\b)/gi;
-  const matches = message.match(partNumberRegex) || [];
-  return matches.map(term => term.replace(/[^\w-]/g, '').toUpperCase());
+    const partNumberRegex = /([A-Za-z]+-?\d+)/gi;
+    const matches = message.match(partNumberRegex) || [];
+    return matches.map(term => term.replace(/[^\w-]/g, '').toUpperCase());
 };
 
 module.exports = async (req, res) => {
@@ -29,7 +29,9 @@ module.exports = async (req, res) => {
         .from('products')
         .select('*')
         .or(searchTerms.map(term => 
-          `part_number.ilike.%${term}%,description.ilike.%${term}%`
+            `part_number.ilike.%${term}%`,
+            `part_number.ilike.%${term.replace(/-/g, '')}%`, // Match both "A-123" and "A123"
+            `description.ilike.%${term}%`
         ).join(','));
 
       if (!error) products = data;

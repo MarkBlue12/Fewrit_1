@@ -1,7 +1,7 @@
 {
     "name": "surplus-ai",
     "dependencies": {
-      "@deepseek/api": "^1.0.0",  // Use actual DeepSeek package
+      "@deepseek/api": "^1.0.0",
       "dotenv": "^16.0.3",
       "cors": "^2.8.5"
     },

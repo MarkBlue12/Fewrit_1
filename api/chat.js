@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .ilike('part_number', `%${searchTerms[0]}%`);
+        .or(queryConditions.join(','));
 
       if (error) {
         console.error('Supabase error:', error); // NEW

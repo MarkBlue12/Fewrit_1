@@ -131,6 +131,7 @@
     max-width: 70%;
     padding: 0.8rem 1.2rem;
     border-radius: 15px;
+    word-break: break-word;
 }
 
 .bot-message .message-content {
@@ -145,4 +146,9 @@
 .user-message .message-content {
     background-color: #0984e3;
     color: white;
+}
+
+.message-content::part-number {
+  color: #0984e3;
+  font-weight: bold;
 }

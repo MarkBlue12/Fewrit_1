@@ -8,9 +8,15 @@ const supabase = createClient(
 
 // Helper function to extract part numbers
 const extractSearchTerms = (message) => {
-    const partNumberRegex = /([A-Za-z]+-?\d+)/gi;
+    // Match patterns like "a 1234", "a-1234", or "a1234"
+    const partNumberRegex = /([A-Za-z]+[-\s]?\d+)/gi;
     const matches = message.match(partNumberRegex) || [];
-    return matches.map(term => term.replace(/[^\w-]/g, '').toUpperCase());
+  
+    return matches.map(term => 
+        term
+            .replace(/[-\s]/g, '')  // Remove hyphens AND spaces
+            .toUpperCase()
+    );
 };
 
 module.exports = async (req, res) => {
@@ -38,8 +44,14 @@ module.exports = async (req, res) => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .or(queryConditions.join(','));
-
+        .or(
+            searchTerms.flatMap(term => [
+                // Match "a1234", "a-1234", or "a 1234"
+                `part_number.ilike.%${term}%`,
+                `part_number.ilike.%${term.slice(0, 1)}-${term.slice(1)}%`, // Add hyphen
+                `description.ilike.%${term}%`
+                ])
+        );
       if (error) {
         console.error('Supabase error:', error); // NEW
         throw error;

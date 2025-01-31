@@ -5,34 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-btn');
 
     async function getAIResponse(message) {
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-    
-        if (!response.ok) throw new Error('API error');
-        
-        const { response: aiResponse, products } = await response.json();
-        
-        // Optional: Add product cards to chat
-        if (products?.length > 0) {
-          products.forEach(product => {
-            addMessage(
-              `🔍 Found: ${product.part_number} - ${product.brand} (${product.quantity} in stock)`,
-              'bot'
-            );
+        try {
+          const response = await fetch('http://localhost:3002/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
           });
-        }
-        
-        return aiResponse;
     
-      } catch (error) {
-        console.error('Fetch Error:', error);
-        return "Sorry, I'm having trouble accessing inventory data.";
+          const data = await response.json();
+          return data.response;
+        } catch (error) {
+          return "Sorry, I'm having trouble connecting to the knowledge base.";
+        }
       }
-    }
     
     async function handleUserMessage() {
         const message = userInput.value.trim();

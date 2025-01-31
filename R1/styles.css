@@ -1,0 +1,148 @@
+/* styles/styles.css */
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #2d3436;
+    padding: 1rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #dfe6e9;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #74b9ff;
+}
+
+.login-btn {
+    background-color: #0984e3;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Hero Section Styles */
+.hero {
+    height: 100vh;
+    background-color: #f5f6fa;
+    padding: 6rem 2rem 2rem;
+}
+
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.chat-header h2 {
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+}
+
+.chat-header p {
+    color: #636e72;
+    font-size: 0.9rem;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.chat-input {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 1rem;
+}
+
+#user-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#send-btn {
+    background-color: #0984e3;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Message Bubbles */
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 0.8rem 1.2rem;
+    border-radius: 15px;
+}
+
+.bot-message .message-content {
+    background-color: #f1f2f6;
+    color: #2d3436;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.user-message .message-content {
+    background-color: #0984e3;
+    color: white;
+}

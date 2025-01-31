@@ -1,0 +1,50 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Surplus AI Marketplace</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="logo">SurplusAI</a>
+            <div class="nav-links">
+                <a href="#products">Products</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+                <button class="login-btn">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI Chat Hero Section -->
+    <section class="hero">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>Surplus Materials AI Assistant</h2>
+                <p>Ask me anything about our industrial inventory</p>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Bot's initial message -->
+                <div class="message bot-message">
+                    <div class="message-content">
+                        Hello! I'm your Surplus Assistant. Ask me about available industrial parts.
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your question about surplus materials...">
+                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <script src="scripts/script.js"></script>
+</body>
+</html>

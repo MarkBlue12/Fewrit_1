@@ -1,11 +1,14 @@
 {
     "name": "surplus-ai",
     "dependencies": {
-      "@deepseek/api": "^1.0.0",
-      "dotenv": "^16.0.3",
-      "cors": "^2.8.5"
+        "axios": "^1.7.9",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7"
     },
     "scripts": {
-      "dev": "vercel dev"
+        "dev": "npx vercel dev"
+    },
+    "devDependencies": {
+        "vercel": "^32.3.0"
     }
-  }
+}

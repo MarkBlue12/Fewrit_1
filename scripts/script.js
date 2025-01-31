@@ -4,22 +4,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
 
-    // Handle user input
-    function handleUserMessage() {
+    async function getAIResponse(message) {
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+          });
+    
+          const data = await response.json();
+          return data.response;
+        } catch (error) {
+          return "Sorry, I'm having trouble connecting to the knowledge base.";
+        }
+      }
+    
+    async function handleUserMessage() {
         const message = userInput.value.trim();
         if (!message) return;
 
-        // Add user message
         addMessage(message, 'user');
-        
-        // TODO: Connect to Supabase backend later
-        // For now, simulate bot response
-        setTimeout(() => {
-            addMessage("I'm still learning! Soon I'll be able to answer questions about our surplus inventory.", 'bot');
-        }, 1000);
-
-        // Clear input
         userInput.value = '';
+
+        // Get AI response
+        const botResponse = await getAIResponse(message);
+        addMessage(botResponse, 'bot');
     }
 
     // Add message to chat

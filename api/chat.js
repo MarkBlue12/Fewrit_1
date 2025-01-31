@@ -17,26 +17,37 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
   try {
+    console.log('Received message:', req.body.message); // NEW
     const { message } = req.body;
     
     // 1. Identify product references
     const searchTerms = extractSearchTerms(message);
+    console.log('Cleaned search terms:', searchTerms); // NEW
     
     // 2. Query Supabase
     let products = [];
     if (searchTerms.length > 0) {
+      const queryConditions = searchTerms.flatMap(term => [
+        `part_number.ilike.%${term}%`,
+        `part_number.ilike.%${term.replace(/-/g, '')}%`,
+        `description.ilike.%${term}%`
+      ]);
+      
+      console.log('Supabase query conditions:', queryConditions); // NEW
+      
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .or(searchTerms.map(term => 
-            `part_number.ilike.%${term}%`,
-            `part_number.ilike.%${term.replace(/-/g, '')}%`, // Match both "A-123" and "A123"
-            `description.ilike.%${term}%`
-        ).join(','));
+        .or(queryConditions.join(','));
 
-      if (!error) products = data;
+      if (error) {
+        console.error('Supabase error:', error); // NEW
+        throw error;
+      }
+      
+      products = data;
+      console.log('Query results:', products); // NEW
     }
-
     // 3. Build AI prompt with inventory data
     const inventoryContext = products.length > 0
       ? `Current Inventory:\n${products.map(p => 
@@ -72,7 +83,7 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Full error stack:', error); // NEW
     res.status(500).json({ error: "Service unavailable" });
   }
 };

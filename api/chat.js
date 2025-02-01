@@ -7,9 +7,30 @@ const supabase = createClient(
 );
 
 // Clean part numbers by removing non-alphanumeric characters
+// const cleanPartNumber = (input) => {
+//     if (!input) return ''; // Handle undefined/null
+//     return input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+// };
+
 const cleanPartNumber = (input) => {
-    if (!input) return ''; // Handle undefined/null
-    return input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    if (!input) return '';
+
+    // Updated regex to capture various part number formats
+    const partNumberRegex = /(\b|^)([a-zA-Z0-9]+(?:[- ][a-zA-Z0-9]+)*)(\b|$)/gi;
+    
+    // Find all matches and filter out partial matches
+    const matches = (input.match(partNumberRegex) || [])
+        .map(m => m.replace(/^\W+|\W+$/g, '')) // Trim non-word chars from edges
+        .filter(m => m.length > 1); // Filter out single-character matches
+
+    // Get best candidate (prioritize alphanumeric with separators)
+    const extracted = matches.reduce((best, current) => {
+        const score = current.replace(/[^a-zA-Z0-9]/g, '').length;
+        return score > best.score ? { value: current, score } : best;
+    }, { value: '', score: 0 }).value;
+
+    // Clean non-alphanumeric and normalize
+    return extracted.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 };
 
 module.exports = async (req, res) => {
@@ -26,6 +47,7 @@ module.exports = async (req, res) => {
 
     // Clean input
     const cleanedInput = cleanPartNumber(message);
+    // const cleanedInput = "abb-1234";
     if (!cleanedInput) {
       return res.json({ 
         response: "Please provide a part number or product description",
